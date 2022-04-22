@@ -37,7 +37,12 @@
         </div>
       </div>
       {% endfor %}
-    
+
+      {% if unassigned_leads.exists %}
+      {% for lead in unassigned_leads %}
+      {{ lead.ismi }}
+      {% endfor %}
+      {% endif %}
     </div>
   </div>
 </section>
