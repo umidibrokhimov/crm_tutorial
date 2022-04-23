@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %} Agentni aniqlash {% endblock %}
+
+{% block content %}
+
+    <a href="/leads/">Mijoz bo'limi</a>
+
+    <form method="post">
+        <p>
+        {% csrf_token %} 
+        <br>
+        {{ form.as_p }}
+        <button type="submit">Jo'natish</button>
+    </form>
+
+{% endblock %}

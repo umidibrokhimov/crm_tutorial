@@ -1,7 +1,7 @@
 from django.core.mail import send_mail
 from django.shortcuts import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import *
 from .models import *
 from .forms import *
 
@@ -79,3 +79,24 @@ class LeadDeleteView(LoginRequiredMixin, DeleteView):
     
     def get_success_url(self):
         return reverse("leads:lead-list")
+
+class AgentAssignView(LoginRequiredMixin, FormView):
+    template_name = "leads/search-agent.html"
+    form_class = AssignAgentForm
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(AgentAssignView, self).get_form_kwargs(**kwargs)
+        kwargs.update({
+                "request": self.request
+            })
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("leads:lead-list")
+
+    def form_valid(self, form):
+        agent = form.cleaned_data['agent']
+        lead = Lead.objects.get(id=self.kwargs['pk'])
+        lead.agent = agent
+        lead.save()
+        return super(AgentAssignView, self).form_valid(form)
