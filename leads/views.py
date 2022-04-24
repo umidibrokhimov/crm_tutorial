@@ -104,6 +104,36 @@ class AgentAssignView(LoginRequiredMixin, FormView):
 class CategoryListView(LoginRequiredMixin, ListView):
     template_name = 'leads/categories.html'
     context_object_name = 'categories'
+    
+    def get_context_data(self, **kwargs):
+        context = super(CategoryListView, self).get_context_data(**kwargs)
+        user = self.request.user
+
+        if user.is_organisor:
+            queryset = Lead.objects.filter(
+                organisation = user.userprofile
+            )
+        else:
+            queryset = Category.objects.filter(
+                organisation=user.agent.organisation
+                )
+        context.update({
+            "unassigned_category_soni": queryset.filter(catogory__isnull=True).count()
+        })
+        return context
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_organisor:
+            queryset = Category.objects.filter(organisation=user.userprofile)
+        else:
+            queryset = Category.objects.filter(organisation=user.agent.organisation)
+
+        return queryset
+
+class CategoryDetailView(LoginRequiredMixin, DetailView):
+    template_name = 'leads/category_detail.html'
+    context_object_name = 'category'
 
     def get_queryset(self):
         user = self.request.user
