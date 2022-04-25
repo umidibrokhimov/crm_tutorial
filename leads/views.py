@@ -56,14 +56,17 @@ class LeadCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse("leads:lead-list")
 
-    # def form_valid(self, form):
-    #     send_mail(
-    #         subject="Bu lead yaratilingan",
-    #         message="Yangi lead yarat",
-    #         from_email="test@test.com",
-    #         recipient_list=["test2@test.com"],
-    #     )
-    #     return super(LeadCreateView, self).form_valid(form)
+    def form_valid(self, form):
+        lead = form.save(commit=False)
+        lead.organisation = self.request.user.userprofile
+        lead.save()
+        send_mail(
+            subject="Bu lead yaratilingan",
+            message="Yangi lead yarat",
+            from_email="test@test.com",
+            recipient_list=["test2@test.com"],
+        )
+        return super(LeadCreateView, self).form_valid(form)
 
 class LeadUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "leads/leads_update.html"
@@ -143,3 +146,19 @@ class CategoryDetailView(LoginRequiredMixin, DetailView):
             queryset = Category.objects.filter(organisation=user.agent.organisation)
 
         return queryset
+
+class LeadCategoryUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = 'leads/category_update.html'
+    form_class = LeadCategoryUpdateForm
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_organisor:
+            queryset = Lead.objects.filter(organisation=user.userprofile)
+        else:
+            queryset = Lead.objects.filter(organisation=user.agent.organisation)
+
+        return queryset
+
+    def get_success_url(self):
+        return reverse("leads:category-view")

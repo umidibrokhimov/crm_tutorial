@@ -22,8 +22,6 @@ class AgentCreateView(LoginRequiredMixin, generic.CreateView):
     
     def form_valid(self, form):
         user = form.save(commit=False)
-
-        # agent.organisation = self.request.user.userprofile
         user.is_organiser = False
         user.is_agent = True
         user.set_password(f'{random.randint}')
