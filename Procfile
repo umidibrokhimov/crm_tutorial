@@ -1,0 +1,1 @@
+web: gunicorn crm_tutorials.wsgi --log-file -
